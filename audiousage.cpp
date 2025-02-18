@@ -7,13 +7,14 @@
 #include <functiondiscoverykeys_devpkey.h>
 #include <iostream>
 #include <string>
+#include <thread>
 
 #pragma comment(lib, "ole32.lib")
 
 const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
 const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 
-int main()
+int get()
 {
     HRESULT hr = S_OK;
 
@@ -113,6 +114,59 @@ int main()
     pEnumerator->Release();
 
     CoUninitialize();
+
+    return 0;
+}
+
+int main(const int argc, char* argv[])
+{
+    const char* exe = strrchr(argv[0], '\\');
+    if (exe != nullptr) exe++;
+    else exe = argv[0];
+
+    if (argc < 2)
+    {
+        std::cout << "Usage: " << exe << " <get, pool> [args]" << std::endl;
+        return 1;
+    }
+
+    if (strcasecmp(argv[1], "get") == 0)
+    {
+        if (argc != 2)
+        {
+            std::cout << "Usage: " << exe << " " << argv[1] << std::endl;
+            return 1;
+        }
+
+        if (const int res = get(); res != 0) return res;
+    }
+    else if (strcasecmp(argv[1], "pool") == 0)
+    {
+        if (argc != 3)
+        {
+            std::cout << "Usage: " << exe << " pool [interval]" << std::endl;
+            return 1;
+        }
+
+        char* end;
+        long interval = strtol(argv[2], &end, 10);
+        if (end == argv[2])
+        {
+            std::cout << "Invalid interval" << std::endl;
+            return 1;
+        }
+
+        while (true)
+        {
+            if (int res = get(); res != 0) return res;
+            std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+        }
+    }
+    else
+    {
+        std::cout << "Usage: " << exe << " <get, pool> [args]" << std::endl;
+        return 1;
+    }
 
     return 0;
 }
