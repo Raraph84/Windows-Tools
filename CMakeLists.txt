@@ -10,3 +10,5 @@ target_link_options(background PRIVATE -mwindows)
 add_executable(volume volume.cpp)
 
 add_executable(screens screens.cpp)
+
+add_executable(audiousage audiousage.cpp)
