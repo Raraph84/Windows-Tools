@@ -16,6 +16,19 @@ std::vector<MONITORINFOEX> monitors() {
     return monitors;
 }
 
+double screenScale(const MONITORINFOEX& info) {
+
+    const double cxLogical = info.rcMonitor.right - info.rcMonitor.left;
+
+    DEVMODE devMode;
+    devMode.dmSize = sizeof(devMode);
+    devMode.dmDriverExtra = 0;
+    EnumDisplaySettings(info.szDevice, ENUM_CURRENT_SETTINGS, &devMode);
+    const double cxPhysical = devMode.dmPelsWidth;
+
+    return cxPhysical / cxLogical * 100;
+}
+
 int main(int argc, char *argv[]) {
 
     const char *exe = strrchr(argv[0], '\\');
@@ -40,7 +53,8 @@ int main(int argc, char *argv[]) {
             std::cout << "Screen " << i << std::endl;
             std::cout << "Resolution: " << GetSystemMetrics(SM_CXSCREEN) << "x" << GetSystemMetrics(SM_CYSCREEN) << std::endl;
             std::cout << "Refresh rate: " << GetDeviceCaps(GetDC(nullptr), VREFRESH) << std::endl;
-            // TODO print zoom and orientation
+            std::cout << "Scaling: " << screenScale(monitors()[i]) << std::endl;
+            // TODO print orientation
         }
 
     } else if (strcasecmp(argv[1], "setresolution") == 0) {
@@ -114,7 +128,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // TODO setmode / setzoom / setorientation
+    // TODO setmode / setscaling / setorientation
 
     return 0;
 }
