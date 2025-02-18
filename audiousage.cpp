@@ -48,7 +48,7 @@ int main()
 
         PROPVARIANT varName;
         PropVariantInit(&varName);
-        hr = pProps->GetValue(PKEY_DeviceInterface_FriendlyName, &varName);
+        hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
         if (FAILED(hr)) return -1;
 
         std::wcout << pwszID << " " << varName.pwszVal << std::endl;
@@ -77,6 +77,7 @@ int main()
 
             AudioSessionState state;
             hr = pSessionControl2->GetState(&state);
+            if (FAILED(hr)) return -1;
             if (state != AudioSessionStateActive) continue;
 
             DWORD processId;
